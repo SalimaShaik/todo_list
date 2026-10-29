@@ -12,7 +12,4 @@ Track task completion progress.
 Visualize task summaries.
 Delete tasks and export task records as CSV files.
 Technologies: Python, Streamlit, Pandas, Plotly
-
-Run the application
-
-python -m streamlit run todo_list.py
+##Live Demo:  https://todolist-3bgj5mwj7wh7mwopcvcedw.streamlit.app/
