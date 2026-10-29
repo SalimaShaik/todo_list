@@ -15,138 +15,185 @@ st.set_page_config(
 # --------------------------------------------------
 # CUSTOM CSS
 # --------------------------------------------------
+
 st.markdown("""
 <style>
-/* Main application background */
+/* ===== Main page ===== */
 .stApp {
-    background: linear-gradient(
-        135deg,
-        #f7f8ff,
-        #f1f5ff,
-        #f8fbff
-    );
-    color: #1e293b;
+    background: linear-gradient(135deg, #f7f8ff, #eef3ff, #f8fbff);
+    color: #1e293b !important;
 }
 
-/* Main content */
+/* Make all normal text visible */
+.stApp p,
+.stApp label,
+.stApp span,
+.stApp li,
+.stApp small,
+.stApp [data-testid="stCaptionContainer"] {
+    color: #334155;
+}
+
+/* Headings */
+.stApp h1,
+.stApp h2,
+.stApp h3,
+.stApp h4 {
+    color: #172554 !important;
+}
+
+/* Main content spacing */
 .block-container {
     padding-top: 2rem;
     padding-bottom: 2rem;
 }
 
-/* Sidebar */
+/* ===== Sidebar ===== */
 section[data-testid="stSidebar"] {
     background-color: #e8edff;
     border-right: 1px solid #dbe4ff;
 }
 
-/* Headings */
-h1, h2, h3 {
-    color: #172554;
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #1e293b !important;
 }
 
-/* Text inputs */
-div[data-testid="stTextInput"] input {
+/* ===== Text inputs ===== */
+div[data-testid="stTextInput"] input,
+div[data-testid="stTextArea"] textarea {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #94a3b8 !important;
+    border-radius: 10px !important;
+    -webkit-text-fill-color: #1e293b !important;
+}
+
+/* Placeholder text */
+div[data-testid="stTextInput"] input::placeholder,
+div[data-testid="stTextArea"] textarea::placeholder {
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+    opacity: 1 !important;
+}
+
+/* ===== Dropdowns ===== */
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
     color: #1e293b !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 10px !important;
 }
 
-/* Select boxes */
-div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
-    background-color: #ffffff;
-    color: #1e293b;
-    border-radius: 10px;
+div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
+    color: #1e293b !important;
 }
 
-/* DATE INPUT BACKGROUND COLOR */
+/* Dropdown menu options */
+div[data-baseweb="popover"],
+div[data-baseweb="menu"],
+div[role="listbox"] {
+    background-color: #ffffff !important;
+}
+
+div[role="option"] {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+}
+
+/* ===== Date picker ===== */
 div[data-testid="stDateInput"] input {
-    background-color: #E0ECFF !important;
-    color: #1E293B !important;
-    border: 1px solid #3B82F6 !important;
+    background-color: #e0ecff !important;
+    color: #1e293b !important;
+    -webkit-text-fill-color: #1e293b !important;
+    border: 1px solid #3b82f6 !important;
     border-radius: 10px !important;
     color-scheme: light !important;
 }
 
-/* Date input calendar button */
 div[data-testid="stDateInput"] button {
-    background-color: #E0ECFF !important;
-    color: #1E293B !important;
-    border-radius: 0 10px 10px 0 !important;
+    background-color: #e0ecff !important;
+    color: #1e293b !important;
 }
 
-/* Date input focus */
 div[data-testid="stDateInput"] input:focus {
-    border-color: #2563EB !important;
+    border-color: #2563eb !important;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
 }
 
-/* Buttons */
-.stButton > button {
-    background-color: #2453e6;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 0.55rem 1rem;
-    font-weight: 600;
-    transition: 0.2s ease;
+/* ===== Buttons ===== */
+.stButton > button,
+.stFormSubmitButton > button {
+    background-color: #2453e6 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
 }
 
-.stButton > button:hover {
-    background-color: #173fc4;
-    color: white;
-    border: none;
+.stButton > button p,
+.stFormSubmitButton > button p {
+    color: #ffffff !important;
 }
 
-/* Download button */
-.stDownloadButton > button {
-    background-color: #0f766e;
-    color: white;
-    border: none;
-    border-radius: 10px;
+.stButton > button:hover,
+.stFormSubmitButton > button:hover {
+    background-color: #173fc4 !important;
+    color: #ffffff !important;
 }
 
-/* Metric cards */
+/* ===== Metric cards ===== */
 div[data-testid="stMetric"] {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
+    background-color: #ffffff !important;
+    border: 1px solid #dbe4f0;
     padding: 18px;
     border-radius: 14px;
     box-shadow: 0 3px 10px rgba(30, 64, 175, 0.05);
 }
 
-/* Task cards */
-.task-card {
+div[data-testid="stMetric"] label,
+div[data-testid="stMetric"] label p,
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] div {
+    color: #1e293b !important;
+    -webkit-text-fill-color: #1e293b !important;
+}
+
+/* ===== Progress bar ===== */
+div[data-testid="stProgress"] {
+    background-color: #e2e8f0 !important;
+}
+
+div[data-testid="stProgress"] p {
+    color: #1e293b !important;
+}
+
+/* ===== Task containers ===== */
+div[data-testid="stVerticalBlockBorderWrapper"] {
     background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-left: 5px solid #3b82f6;
-    padding: 16px;
     border-radius: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.04);
 }
 
-/* Completed tasks */
-.completed-card {
-    border-left-color: #0d9488;
-    opacity: 0.85;
+/* Checkbox labels */
+div[data-testid="stCheckbox"] label,
+div[data-testid="stCheckbox"] label p {
+    color: #1e293b !important;
 }
 
-/* Status labels */
-.pending-label {
-    color: #2453e6;
-    font-weight: bold;
-}
-
-.completed-label {
-    color: #0f766e;
-    font-weight: bold;
+/* ===== Download button ===== */
+.stDownloadButton > button {
+    background-color: #0f766e !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
 }
 
 /* Divider */
 hr {
-    border-color: #dbe4ff;
+    border-color: #dbe4ff !important;
 }
 </style>
 """, unsafe_allow_html=True)
