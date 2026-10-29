@@ -1,299 +1,574 @@
+
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from datetime import date, timedelta
 
-st.set_page_config(page_title="TaskFlow To-Do", page_icon="✅", layout="wide")
+# --------------------------------------------------
+# PAGE CONFIGURATION
+# --------------------------------------------------
+st.set_page_config(
+    page_title="TaskFlow - To-Do List",
+    page_icon="✅",
+    layout="wide"
+)
 
-# High-contrast, readable light theme
+# --------------------------------------------------
+# CUSTOM CSS
+# --------------------------------------------------
 st.markdown("""
 <style>
+/* Main application background */
 .stApp {
-    background: linear-gradient(135deg, #f3f6fb, #eef3ff, #f8fafc);
-    color: #172033;
+    background: linear-gradient(
+        135deg,
+        #f7f8ff,
+        #f1f5ff,
+        #f8fbff
+    );
+    color: #1e293b;
 }
+
+/* Main content */
 .block-container {
-    max-width: 1400px;
-    padding-top: 1.5rem;
+    padding-top: 2rem;
     padding-bottom: 2rem;
 }
-.stApp h1, .stApp h2, .stApp h3, .stApp h4,
-.stApp p, .stApp label, .stApp span,
-.stApp .stMarkdown, [data-testid="stCaptionContainer"] {
-    color: #172033;
-}
-.hero {
-    padding: 1.7rem;
-    border-radius: 22px;
-    color: #ffffff !important;
-    background: linear-gradient(115deg, #172554, #0f766e, #2563eb);
-    margin-bottom: 1.2rem;
-    box-shadow: 0 8px 22px rgba(30, 64, 175, .15);
-}
-.hero h1 {
-    color: #ffffff !important;
-    margin: 0;
-}
-.hero p {
-    color: #eaf2ff !important;
-    margin: .3rem 0 0;
-}
-.kpi {
-    background: #ffffff;
-    border: 1px solid #d8e0ed;
-    border-radius: 16px;
-    padding: 1rem;
-    min-height: 100px;
-    box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
-}
-.klabel {
-    color: #475569 !important;
-    font-size: .85rem;
-}
-.kvalue {
-    font-size: 1.7rem;
-    font-weight: 750;
-    color: #12316b !important;
-}
+
 /* Sidebar */
-[data-testid="stSidebar"] {
-    background: #eaf0fa;
-    border-right: 1px solid #d8e0ed;
+section[data-testid="stSidebar"] {
+    background-color: #e8edff;
+    border-right: 1px solid #dbe4ff;
 }
-[data-testid="stSidebar"] * {
-    color: #172033 !important;
+
+/* Headings */
+h1, h2, h3 {
+    color: #172554;
 }
-/* Inputs and dropdowns */
-.stApp input, .stApp textarea,
-.stApp [data-baseweb="select"] > div,
-.stApp [data-baseweb="input"] > div {
+
+/* Text inputs */
+div[data-testid="stTextInput"] input {
     background-color: #ffffff !important;
-    color: #172033 !important;
-    border-color: #b8c5d8 !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
 }
-.stApp input::placeholder, .stApp textarea::placeholder {
-    color: #64748b !important;
-    opacity: 1;
+
+/* Select boxes */
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+    background-color: #ffffff;
+    color: #1e293b;
+    border-radius: 10px;
 }
-.stApp [data-baseweb="select"] *,
-.stApp [data-baseweb="popover"] * {
-    color: #172033 !important;
+
+/* DATE INPUT BACKGROUND COLOR */
+div[data-testid="stDateInput"] input {
+    background-color: #E0ECFF !important;
+    color: #1E293B !important;
+    border: 1px solid #3B82F6 !important;
+    border-radius: 10px !important;
+    color-scheme: light !important;
 }
-.stApp [data-testid="stWidgetLabel"] label {
-    color: #172033 !important;
-    font-weight: 600;
+
+/* Date input calendar button */
+div[data-testid="stDateInput"] button {
+    background-color: #E0ECFF !important;
+    color: #1E293B !important;
+    border-radius: 0 10px 10px 0 !important;
 }
+
+/* Date input focus */
+div[data-testid="stDateInput"] input:focus {
+    border-color: #2563EB !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+}
+
 /* Buttons */
-.stApp button[kind="primary"],
-.stApp [data-testid="stFormSubmitButton"] button,
-.stApp [data-testid="stDownloadButton"] button {
-    background: #1d4ed8 !important;
-    color: #ffffff !important;
-    border: 1px solid #1d4ed8 !important;
+.stButton > button {
+    background-color: #2453e6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1rem;
+    font-weight: 600;
+    transition: 0.2s ease;
 }
-.stApp button[kind="primary"] *,
-.stApp [data-testid="stFormSubmitButton"] button *,
-.stApp [data-testid="stDownloadButton"] button * {
-    color: #ffffff !important;
+
+.stButton > button:hover {
+    background-color: #173fc4;
+    color: white;
+    border: none;
 }
-.stApp button[kind="secondary"] {
-    background: #ffffff !important;
-    color: #1d4ed8 !important;
-    border: 1px solid #9bb6e8 !important;
+
+/* Download button */
+.stDownloadButton > button {
+    background-color: #0f766e;
+    color: white;
+    border: none;
+    border-radius: 10px;
 }
-.stApp button[kind="secondary"] * {
-    color: #1d4ed8 !important;
+
+/* Metric cards */
+div[data-testid="stMetric"] {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(30, 64, 175, 0.05);
 }
-/* Progress bar */
-.stProgress > div > div > div {
-    background-color: #2563eb !important;
+
+/* Task cards */
+.task-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #3b82f6;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.04);
 }
-/* Captions and helper text */
-[data-testid="stCaptionContainer"] {
-    color: #64748b !important;
+
+/* Completed tasks */
+.completed-card {
+    border-left-color: #0d9488;
+    opacity: 0.85;
 }
-/* Checkboxes */
-.stApp [data-testid="stCheckbox"] label,
-.stApp [data-testid="stCheckbox"] label p {
-    color: #172033 !important;
+
+/* Status labels */
+.pending-label {
+    color: #2453e6;
+    font-weight: bold;
+}
+
+.completed-label {
+    color: #0f766e;
+    font-weight: bold;
+}
+
+/* Divider */
+hr {
+    border-color: #dbe4ff;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown(
-    '<div class="hero"><h1>✅ TaskFlow</h1>'
-    '<p>Your productivity workspace • Prioritize wisely • Finish strong</p></div>',
-    unsafe_allow_html=True
-)
-
-today = date.today()
-sample = [
-    {"Task": "Revise Python functions", "Category": "Study", "Priority": "High",
-     "Due date": today + timedelta(days=1), "Done": False},
-    {"Task": "Practice SQL joins", "Category": "Study", "Priority": "Medium",
-     "Due date": today + timedelta(days=2), "Done": False},
-    {"Task": "Prepare project report outline", "Category": "Project", "Priority": "High",
-     "Due date": today + timedelta(days=3), "Done": False},
-    {"Task": "Organize internship certificates", "Category": "Personal",
-     "Priority": "Low", "Due date": today - timedelta(days=1), "Done": True}
-]
-
+# --------------------------------------------------
+# SESSION STATE
+# --------------------------------------------------
 if "tasks" not in st.session_state:
-    st.session_state.tasks = pd.DataFrame(sample)
+    st.session_state.tasks = []
 
+if "next_task_id" not in st.session_state:
+    st.session_state.next_task_id = 1
+
+# --------------------------------------------------
+# HELPER FUNCTIONS
+# --------------------------------------------------
+def add_task(name, category, priority, due_date):
+    task = {
+        "ID": st.session_state.next_task_id,
+        "Task": name.strip(),
+        "Category": category,
+        "Priority": priority,
+        "Due Date": due_date,
+        "Completed": False,
+        "Created Date": date.today()
+    }
+
+    st.session_state.tasks.append(task)
+    st.session_state.next_task_id += 1
+
+
+def delete_task(task_id):
+    st.session_state.tasks = [
+        task for task in st.session_state.tasks
+        if task["ID"] != task_id
+    ]
+
+
+def toggle_task(task_id, completed):
+    for task in st.session_state.tasks:
+        if task["ID"] == task_id:
+            task["Completed"] = completed
+            break
+
+
+# --------------------------------------------------
+# SIDEBAR
+# --------------------------------------------------
 with st.sidebar:
-    st.header("🧭 Task filters")
-    sf = st.selectbox("Status", ["All", "Pending", "Completed", "Overdue"])
-    cats = ["All"] + sorted(st.session_state.tasks["Category"].unique().tolist())
-    cf = st.selectbox("Category", cats)
-    pf = st.selectbox("Priority", ["All", "High", "Medium", "Low"])
-    if st.button("Reset demo tasks", use_container_width=True):
-        st.session_state.tasks = pd.DataFrame(sample)
-        st.rerun()
+    st.title("⚙️ TaskFlow")
+    st.caption("Your personal productivity manager")
 
-tasks = st.session_state.tasks.copy()
-tasks["Overdue"] = (
-    tasks.apply(lambda r: not r["Done"] and r["Due date"] < today, axis=1)
-    if len(tasks) else False
-)
-total = len(tasks)
-done = int(tasks["Done"].sum()) if total else 0
-pending = total - done
-overdue = int(tasks["Overdue"].sum()) if total else 0
-progress = round(done / total * 100) if total else 0
+    st.divider()
 
-cols = st.columns(4)
-for c, label, val, sub in zip(
-    cols,
-    ["Total tasks", "Completed", "Pending", "Overdue"],
-    [total, done, pending, overdue],
-    ["Tasks in workspace", "Nice work!", "Still on your list", "Past due and unfinished"]
-):
-    c.markdown(
-        f'<div class="kpi"><div class="klabel">{label}</div>'
-        f'<div class="kvalue">{val}</div><div class="klabel">{sub}</div></div>',
+    st.header("🔎 Filters")
+
+    search_query = st.text_input(
+        "Search by name or ID",
+        placeholder="Search tasks..."
+    )
+
+    categories = ["All"] + sorted({
+        task["Category"] for task in st.session_state.tasks
+    })
+
+    selected_category = st.selectbox(
+        "Category",
+        categories
+    )
+
+    selected_status = st.selectbox(
+        "Status",
+        ["All", "Pending", "Completed"]
+    )
+
+    selected_priority = st.selectbox(
+        "Priority",
+        ["All", "High", "Medium", "Low"]
+    )
+
+    st.divider()
+
+    st.markdown("### 📌 Task Status")
+    st.markdown(
+        '<span class="pending-label">🔵 Pending</span>',
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        '<span class="completed-label">🟢 Completed</span>',
         unsafe_allow_html=True
     )
 
-st.write("")
-a, b = st.columns([1, 1.6])
+    st.divider()
 
-with a:
-    st.subheader("Your progress")
-    st.progress(progress / 100)
-    st.markdown(f"### {progress}% completed")
-    if total:
-        chart = px.pie(
-            pd.DataFrame({"Status": ["Completed", "Pending"], "Tasks": [done, pending]}),
-            names="Status",
-            values="Tasks",
-            hole=.65,
-            color="Status",
-            color_discrete_map={"Completed": "#0f766e", "Pending": "#647fea"}
-        )
-        chart.update_traces(
-            textfont=dict(color="#ffffff", size=13),
-            marker=dict(line=dict(color="#ffffff", width=2)),
-            hoverlabel=dict(bgcolor="#ffffff", font=dict(color="#172033"))
-        )
-        chart.update_layout(
-            height=280,
-            margin=dict(l=0, r=0, t=5, b=0),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#172033", family="Arial", size=13),
-            legend=dict(font=dict(color="#172033", size=12))
-        )
-        st.plotly_chart(chart, use_container_width=True)
+    if st.button("🗑️ Clear All Tasks", use_container_width=True):
+        st.session_state.tasks = []
+        st.rerun()
 
-with b:
-    st.subheader("＋ Create a task")
-    with st.form("new_task", clear_on_submit=True):
-        title = st.text_input("Task name", placeholder="e.g. Complete Java practice")
-        c1, c2 = st.columns(2)
-        category = c1.selectbox(
-            "Category", ["Study", "Project", "Work", "Personal", "Health", "Other"]
-        )
-        priority = c2.selectbox("Priority", ["High", "Medium", "Low"], index=1)
-        due = st.date_input("Due date", value=today + timedelta(days=1))
-        add = st.form_submit_button("Add task", use_container_width=True)
-        if add:
-            if not title.strip():
-                st.error("Please enter a task name.")
-            else:
-                st.session_state.tasks = pd.concat(
-                    [
-                        st.session_state.tasks,
-                        pd.DataFrame([{
-                            "Task": title.strip(),
-                            "Category": category,
-                            "Priority": priority,
-                            "Due date": due,
-                            "Done": False
-                        }])
-                    ],
-                    ignore_index=True
-                )
-                st.success("Task added.")
-                st.rerun()
 
-st.subheader("Your task board")
-view = st.session_state.tasks.copy()
-if len(view):
-    view["Overdue"] = view.apply(
-        lambda r: not r["Done"] and r["Due date"] < today, axis=1
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
+st.title("✅ TaskFlow")
+st.markdown(
+    "### Organize your day. Track your goals. Get things done."
+)
+
+st.write(
+    "Manage your daily activities, prioritize important work, "
+    "and track your progress in one place."
+)
+
+st.divider()
+
+# --------------------------------------------------
+# DASHBOARD METRICS
+# --------------------------------------------------
+all_tasks = st.session_state.tasks
+
+total_tasks = len(all_tasks)
+completed_tasks = sum(
+    task["Completed"] for task in all_tasks
+)
+pending_tasks = total_tasks - completed_tasks
+
+overdue_tasks = sum(
+    not task["Completed"] and task["Due Date"] < date.today()
+    for task in all_tasks
+)
+
+completion_rate = (
+    (completed_tasks / total_tasks) * 100
+    if total_tasks > 0 else 0
+)
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.metric("📋 Total Tasks", total_tasks)
+
+with col2:
+    st.metric("⏳ Pending", pending_tasks)
+
+with col3:
+    st.metric("✅ Completed", completed_tasks)
+
+with col4:
+    st.metric("⚠️ Overdue", overdue_tasks)
+
+st.progress(
+    int(completion_rate),
+    text=f"Overall completion: {completion_rate:.1f}%"
+)
+
+st.divider()
+
+# --------------------------------------------------
+# ADD TASK FORM
+# --------------------------------------------------
+st.subheader("➕ Add a New Task")
+
+with st.form("task_form", clear_on_submit=True):
+    task_name = st.text_input(
+        "Task name",
+        placeholder="e.g. Complete Java practice"
     )
 
-if sf == "Pending":
-    view = view[~view["Done"]]
-elif sf == "Completed":
-    view = view[view["Done"]]
-elif sf == "Overdue":
-    view = view[view["Overdue"]]
+    col1, col2 = st.columns(2)
 
-if cf != "All":
-    view = view[view["Category"] == cf]
-if pf != "All":
-    view = view[view["Priority"] == pf]
-
-if view.empty:
-    st.info("No tasks match these filters. Add a task or change the filters.")
-else:
-    for idx, row in view.iterrows():
-        c1, c2, c3, c4, c5 = st.columns([.45, 4.2, 1.15, 1.3, 1])
-        checked = c1.checkbox(
-            "Done", value=bool(row["Done"]), key=f"done_{idx}",
-            label_visibility="collapsed"
+    with col1:
+        category = st.selectbox(
+            "Category",
+            ["Study", "Work", "Personal", "Health", "Other"]
         )
-        if checked != bool(row["Done"]):
-            st.session_state.tasks.at[idx, "Done"] = checked
-            st.rerun()
 
-        task_text = str(row["Task"])
-        if row["Done"]:
-            c2.markdown(f"~~{task_text}~~")
-        else:
-            c2.markdown(f"**{task_text}**")
-        c2.caption(f'{row["Category"]} · Due {row["Due date"].strftime("%d %b %Y")}')
-        c3.markdown({"High": "🔴 High", "Medium": "🟠 Medium", "Low": "🟢 Low"}[row["Priority"]])
-        c4.markdown(
-            "⚠️ Overdue" if row["Overdue"]
-            else "✅ Complete" if row["Done"]
-            else "🕒 Pending"
+    with col2:
+        priority = st.selectbox(
+            "Priority",
+            ["High", "Medium", "Low"],
+            index=1
         )
-        if c5.button("Delete", key=f"del_{idx}"):
-            st.session_state.tasks = (
-                st.session_state.tasks.drop(index=idx).reset_index(drop=True)
+
+    due_date = st.date_input(
+        "Due date",
+        value=date.today() + timedelta(days=1),
+        min_value=date(2000, 1, 1),
+        max_value=date(2100, 12, 31),
+        format="YYYY/MM/DD"
+    )
+
+    submitted = st.form_submit_button(
+        "➕ Add Task",
+        use_container_width=True
+    )
+
+    if submitted:
+        if task_name.strip():
+            add_task(
+                task_name,
+                category,
+                priority,
+                due_date
             )
+            st.success("Task added successfully!")
             st.rerun()
+        else:
+            st.error("Please enter a task name.")
 
-st.download_button(
-    "⬇️ Export tasks as CSV",
-    st.session_state.tasks.to_csv(index=False).encode("utf-8"),
-    "todo_tasks.csv",
-    "text/csv"
-)
-st.caption(
-    "Demo tasks are examples. Tasks are stored in session state "
-    "and may reset when the session restarts."
+st.divider()
+
+# --------------------------------------------------
+# FILTER TASKS
+# --------------------------------------------------
+filtered_tasks = []
+
+for task in st.session_state.tasks:
+    if search_query.strip():
+        query = search_query.strip().lower()
+
+        if (
+            query not in task["Task"].lower()
+            and query not in str(task["ID"])
+        ):
+            continue
+
+    if (
+        selected_category != "All"
+        and task["Category"] != selected_category
+    ):
+        continue
+
+    if (
+        selected_status == "Pending"
+        and task["Completed"]
+    ):
+        continue
+
+    if (
+        selected_status == "Completed"
+        and not task["Completed"]
+    ):
+        continue
+
+    if (
+        selected_priority != "All"
+        and task["Priority"] != selected_priority
+    ):
+        continue
+
+    filtered_tasks.append(task)
+
+# --------------------------------------------------
+# TASK LIST
+# --------------------------------------------------
+st.subheader("📝 Your Tasks")
+
+if not filtered_tasks:
+    st.info(
+        "No tasks found. Add a new task or change your filters."
+    )
+else:
+    # Pending tasks first, then due date
+    filtered_tasks.sort(
+        key=lambda task: (
+            task["Completed"],
+            task["Due Date"]
+        )
+    )
+
+    for task in filtered_tasks:
+        task_id = task["ID"]
+
+        with st.container(border=True):
+            left, middle, right = st.columns(
+                [0.65, 0.22, 0.13]
+            )
+
+            with left:
+                checked = st.checkbox(
+                    task["Task"],
+                    value=task["Completed"],
+                    key=f"complete_{task_id}"
+                )
+
+                if checked != task["Completed"]:
+                    toggle_task(task_id, checked)
+                    st.rerun()
+
+                if task["Completed"]:
+                    st.markdown(
+                        '<span class="completed-label">'
+                        '🟢 Completed</span>',
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(
+                        '<span class="pending-label">'
+                        '🔵 Pending</span>',
+                        unsafe_allow_html=True
+                    )
+
+                st.caption(
+                    f"ID: {task_id}  |  "
+                    f"Category: {task['Category']}  |  "
+                    f"Priority: {task['Priority']}"
+                )
+
+                st.caption(
+                    f"📅 Due date: "
+                    f"{task['Due Date'].strftime('%d %b %Y')}"
+                )
+
+                if (
+                    not task["Completed"]
+                    and task["Due Date"] < date.today()
+                ):
+                    st.error("This task is overdue.")
+                elif (
+                    not task["Completed"]
+                    and task["Due Date"] == date.today()
+                ):
+                    st.warning("This task is due today.")
+
+            with middle:
+                if task["Priority"] == "High":
+                    st.error("🔴 High")
+                elif task["Priority"] == "Medium":
+                    st.warning("🟡 Medium")
+                else:
+                    st.success("🟢 Low")
+
+            with right:
+                if st.button(
+                    "🗑️ Delete",
+                    key=f"delete_{task_id}"
+                ):
+                    delete_task(task_id)
+                    st.rerun()
+
+# --------------------------------------------------
+# PROGRESS AND CATEGORY ANALYSIS
+# --------------------------------------------------
+st.divider()
+st.subheader("📊 Progress Dashboard")
+
+chart_col1, chart_col2 = st.columns(2)
+
+with chart_col1:
+    st.markdown("#### Completion Status")
+
+    if all_tasks:
+        status_data = pd.DataFrame({
+            "Status": ["Completed", "Pending"],
+            "Tasks": [completed_tasks, pending_tasks]
+        })
+
+        st.bar_chart(
+            status_data.set_index("Status")
+        )
+    else:
+        st.info("Add tasks to view your progress.")
+
+with chart_col2:
+    st.markdown("#### Tasks by Category")
+
+    if all_tasks:
+        category_counts = {}
+
+        for task in all_tasks:
+            cat = task["Category"]
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+
+        category_data = pd.DataFrame({
+            "Category": list(category_counts.keys()),
+            "Tasks": list(category_counts.values())
+        })
+
+        st.bar_chart(
+            category_data.set_index("Category")
+        )
+    else:
+        st.info("Add tasks to view category statistics.")
+
+# --------------------------------------------------
+# EXPORT TASKS TO CSV
+# --------------------------------------------------
+st.divider()
+st.subheader("📥 Export Your Tasks")
+
+if all_tasks:
+    export_data = []
+
+    for task in all_tasks:
+        export_data.append({
+            "ID": task["ID"],
+            "Task": task["Task"],
+            "Category": task["Category"],
+            "Priority": task["Priority"],
+            "Due Date": task["Due Date"].isoformat(),
+            "Completed": task["Completed"],
+            "Created Date": task["Created Date"].isoformat()
+        })
+
+    df = pd.DataFrame(export_data)
+
+    st.download_button(
+        label="⬇️ Download Tasks as CSV",
+        data=df.to_csv(index=False).encode("utf-8"),
+        file_name="taskflow_tasks.csv",
+        mime="text/csv"
+    )
+else:
+    st.info("There are no tasks to export yet.")
+
+# --------------------------------------------------
+# FOOTER
+# --------------------------------------------------
+st.divider()
+
+st.markdown(
+    "<div style='text-align:center; color:#64748b;'>"
+    "TaskFlow | Stay organized. Stay productive. 🚀"
+    "</div>",
+    unsafe_allow_html=True
 )
